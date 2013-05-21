@@ -11,8 +11,31 @@
 
 ;(function($){
     // Convenience vars for accessing elements
-    var $body = $('body'),
-        $pageslide = $('#pageslide');
+		var $body, $pageslide;
+		
+		$(function(){
+	    $body = $('body'),
+	    $pageslide = $('#pageslide');
+	
+			/* Events */
+
+			// Don't let clicks to the pageslide close the window
+		    $pageslide.click(function(e) {
+		        e.stopPropagation();
+		    });
+
+			// Close the pageslide if the document is clicked or the users presses the ESC key, unless the pageslide is modal
+			$(document).bind('click keyup', function(e) {
+			    // If this is a keyup event, let's see if it's an ESC key
+		        if( e.type == "keyup" && e.keyCode != 27) return;
+
+			    // Make sure it's visible, and we're not modal	    
+			    if( $pageslide.is( ':visible' ) && !$pageslide.data( 'modal' ) ) {	        
+			        $.pageslide.close();
+			    }
+			});
+	
+		});
     
     var _sliding = false,   // Mutex to assist closing only once
         _lastCaller;        // Used to keep track of last element to trigger pageslide
@@ -79,7 +102,7 @@
                   .animate(slideAnimateIn, speed, function() {
                       _sliding = false;
                   });
-        $('body').addClass('body-no-scroll');
+        $body.addClass('body-no-scroll');
     }
       
     /*
@@ -169,30 +192,11 @@
                 break;
         }
         
-        $pageslide.animate(slideAnimateIn, speed, function(){ $pageslide.hide() });
+        $pageslide.animate(slideAnimateIn, speed, function(){ $pageslide.hide(); $body.removeClass('body-no-scroll'); });
 				$('#opacity-fade').hide();
-				$('body').removeClass('body-no-scroll');
-				
 
         _sliding = false;
     }
 
-	/* Events */
-
-	// Don't let clicks to the pageslide close the window
-    $pageslide.click(function(e) {
-        e.stopPropagation();
-    });
-
-	// Close the pageslide if the document is clicked or the users presses the ESC key, unless the pageslide is modal
-	$(document).bind('click keyup', function(e) {
-	    // If this is a keyup event, let's see if it's an ESC key
-        if( e.type == "keyup" && e.keyCode != 27) return;
-
-	    // Make sure it's visible, and we're not modal	    
-	    if( $pageslide.is( ':visible' ) && !$pageslide.data( 'modal' ) ) {	        
-	        $.pageslide.close();
-	    }
-	});
 
 })(jQuery);
