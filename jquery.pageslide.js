@@ -17,12 +17,6 @@
     var _sliding = false,   // Mutex to assist closing only once
         _lastCaller;        // Used to keep track of last element to trigger pageslide
     
-	// If the pageslide element doesn't exist, create it
-    if( $pageslide.length == 0 ) {
-         $pageslide = $('<div />').attr( 'id', 'pageslide' )
-                                  .css( 'display', 'none' )
-                                  .appendTo( $('body') );
-    }
     
     /*
      * Private methods 
@@ -57,6 +51,7 @@
     
     // Function that controls opening of the pageslide
     function _start( direction, speed ) {
+			  $('#opacity-fade').show();
         var slideWidth = $pageslide.outerWidth( true ),
             bodyAnimateIn = {},
             slideAnimateIn = {};
@@ -68,12 +63,12 @@
         switch( direction ) {
             case 'left':
                 $pageslide.css({ left: 'auto', right: '-' + slideWidth + 'px' });
-                bodyAnimateIn['margin-left'] = '-=' + slideWidth;
+                //bodyAnimateIn['margin-left'] = '-=' + slideWidth;
                 slideAnimateIn['right'] = '+=' + slideWidth;
                 break;
             default:
                 $pageslide.css({ left: '-' + slideWidth + 'px', right: 'auto' });
-                bodyAnimateIn['margin-left'] = '+=' + slideWidth;
+                //bodyAnimateIn['margin-left'] = '+=' + slideWidth;
                 slideAnimateIn['left'] = '+=' + slideWidth;
                 break;
         }
@@ -84,6 +79,7 @@
                   .animate(slideAnimateIn, speed, function() {
                       _sliding = false;
                   });
+        $('body').addClass('body-no-scroll');
     }
       
     /*
@@ -113,7 +109,7 @@
             }       
         });                   
 	};
-	
+
 	/*
      * Default settings 
      */
@@ -124,16 +120,16 @@
         iframe:     true,       // By default, linked pages are loaded into an iframe. Set this to false if you don't want an iframe.
         href:       null        // Override the source of the content. Optional in most cases, but required when opening pageslide programmatically.
     };
-	
+
 	/*
      * Public methods 
      */
-	
+
 	// Open the pageslide
 	$.pageslide = function( options ) {	    
 	    // Extend the settings with those the user has provided
         var settings = $.extend({}, $.fn.pageslide.defaults, options);
-	    
+
 	    // Are we trying to open in different direction?
         if( $pageslide.is(':visible') && $pageslide.data( 'direction' ) != settings.direction) {
             $.pageslide.close(function(){
@@ -149,7 +145,7 @@
         
         $pageslide.data( settings );
 	}
-	
+
 	// Close the pageslide
 	$.pageslide.close = function( callback ) {
         var $pageslide = $('#pageslide'),
@@ -164,25 +160,25 @@
         
         switch( $pageslide.data( 'direction' ) ) {
             case 'left':
-                bodyAnimateIn['margin-left'] = '+=' + slideWidth;
+                //bodyAnimateIn['margin-left'] = '+=' + slideWidth;
                 slideAnimateIn['right'] = '-=' + slideWidth;
                 break;
             default:
-                bodyAnimateIn['margin-left'] = '-=' + slideWidth;
+                //bodyAnimateIn['margin-left'] = '-=' + slideWidth;
                 slideAnimateIn['left'] = '-=' + slideWidth;
                 break;
         }
         
-        $pageslide.animate(slideAnimateIn, speed);
-        $body.animate(bodyAnimateIn, speed, function() {
-            $pageslide.hide();
-            _sliding = false;
-            if( typeof callback != 'undefined' ) callback();
-        });
+        $pageslide.animate(slideAnimateIn, speed, function(){ $pageslide.hide() });
+				$('#opacity-fade').hide();
+				$('body').removeClass('body-no-scroll');
+				
+
+        _sliding = false;
     }
-	
+
 	/* Events */
-	
+
 	// Don't let clicks to the pageslide close the window
     $pageslide.click(function(e) {
         e.stopPropagation();
@@ -192,11 +188,11 @@
 	$(document).bind('click keyup', function(e) {
 	    // If this is a keyup event, let's see if it's an ESC key
         if( e.type == "keyup" && e.keyCode != 27) return;
-	    
+
 	    // Make sure it's visible, and we're not modal	    
 	    if( $pageslide.is( ':visible' ) && !$pageslide.data( 'modal' ) ) {	        
 	        $.pageslide.close();
 	    }
 	});
-	
+
 })(jQuery);
